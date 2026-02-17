@@ -2,6 +2,10 @@
 
 Small, deterministic control primitives for software systems. Testable, auditable bricks.
 
+## Why this exists
+
+Most software control logic is implicit, buried in application code, and impossible to audit independently. These primitives make control decisions explicit, testable, and portable. Each one is a standalone brick: no frameworks, no runtime dependencies, no hidden state. If your system needs a verifiable stop condition, a gated authority check, or a deterministic posture classifier, you can drop one in and test it in isolation.
+
 ## Primitives
 
 ### `stop_machine`
