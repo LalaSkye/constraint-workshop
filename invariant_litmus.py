@@ -30,7 +30,7 @@ _HARD_PHRASES = [
     "cannot fall below", "fundamental limit", "upper bound",
     "lower bound", "independent of hardware", "no amount of",
     "physically impossible", "thermodynamic limit",
-    "shannon limit", "landauer", "planck",
+    "shannon limit", "landauer", "planck", "energy per bit",
 ]
 
 _COST_PHRASES = [
