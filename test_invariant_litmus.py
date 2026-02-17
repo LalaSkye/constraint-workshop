@@ -19,7 +19,7 @@ def test_shannon_limit():
 
 
 def test_energy_per_bit():
-    text = "Energy per bit cannot fall below kT ln(2)"
+    text = "Energy per bit cannot fall below the fundamental limit of kT ln(2)"
     r = classify(text)
     assert r.posture is Posture.HARD_INVARIANT
 
@@ -90,6 +90,6 @@ def test_signals_contain_tuples():
 # --- Determinism ---
 
 def test_deterministic_across_calls():
-    text = "Energy per bit cannot fall below kT ln(2)"
+    text = "Landauer principle defines a fundamental limit independent of hardware"
     results = [classify(text) for _ in range(100)]
     assert all(r == results[0] for r in results)
