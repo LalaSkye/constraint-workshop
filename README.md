@@ -1,3 +1,5 @@
+![CI](https://github.com/LalaSkye/constraint-workshop/actions/workflows/ci.yml/badge.svg)
+
 # constraint-workshop
 
 Small, deterministic control primitives for software systems. Testable, auditable bricks.
