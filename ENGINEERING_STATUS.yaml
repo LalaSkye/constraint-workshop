@@ -1,0 +1,18 @@
+canonical:
+  stop_machine: "3780882"
+  authority_gate: "70ed2c9"
+  invariant_litmus: "8d04cbc"
+
+legacy:
+  stop-machine:
+    stop-machine-v0: "stubbed"
+    authority-gate-v0: "stubbed"
+
+evidence:
+  stop-machine_ci: "https://github.com/LalaSkye/stop-machine/actions"
+  constraint-workshop_ci: "https://github.com/LalaSkye/constraint-workshop/actions"
+  integration_matrix: "docs/INTEGRATION_MATRIX.md"
+
+stability_phase:
+  start_date: "2026-02-22"
+  days_completed: 1
