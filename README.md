@@ -99,6 +99,11 @@ pip install pytest
 pytest test_stop_machine.py test_authority_gate.py test_invariant_litmus.py -v
 ```
 
+
+## Scope boundaries
+
+`/prometheus` is an **observability-only island**. It must not be imported by any execution path, gate, or pipeline code. It observes and reports; it cannot allow, hold, deny, or silence anything.
+
 ## Licence
 
 Apache 2.0
