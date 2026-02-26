@@ -1,0 +1,1 @@
+{"event_type": "path_violation", "ts": "2025-02-26T10:00:00Z", "source": "unit-test", "severity": "CRITICAL", "message": "Detected coupling to forbidden path", "context": {"path": "/trinity/gate/example.py"}}
