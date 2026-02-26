@@ -1,0 +1,4 @@
+{"event_type": "startup", "ts": "2025-02-26T10:00:00Z", "source": "unit-test", "severity": "INFO", "message": "System started successfully", "context": null}
+{"event_type": "heartbeat", "ts": "2025-02-26T10:05:00Z", "source": "unit-test", "severity": "INFO", "message": "Heartbeat check passed", "context": {"uptime_seconds": 300}}
+{"event_type": "latency_spike", "ts": "2025-02-26T10:10:00Z", "source": "unit-test", "severity": "WARN", "message": "Response latency exceeded threshold", "context": {"latency_ms": 1200}}
+{"event_type": "connection_failure", "ts": "2025-02-26T10:15:00Z", "source": "unit-test", "severity": "ERROR", "message": "Database connection failed after 3 retries", "context": {"retries": 3}}
