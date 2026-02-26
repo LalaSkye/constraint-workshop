@@ -1,0 +1,4 @@
+{"event_type": "valid_event", "ts": "2025-02-26T10:00:00Z", "source": "unit-test", "severity": "INFO", "message": "This event is schema-valid", "context": null}
+{"event_type": "bad_ts", "ts": "2025-02-26T10:00:00", "source": "unit-test", "severity": "WARN", "message": "Timestamp missing Z suffix", "context": null}
+{"event_type": "bad_severity", "ts": "2025-02-26T10:01:00Z", "source": "unit-test", "severity": 42, "message": "Severity is wrong type", "context": null}
+{"event_type": "missing_message", "ts": "2025-02-26T10:02:00Z", "source": "unit-test", "severity": "ERROR", "context": null}
