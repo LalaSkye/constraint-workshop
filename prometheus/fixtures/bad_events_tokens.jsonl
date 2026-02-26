@@ -1,0 +1,1 @@
+{"event_type": "policy_violation", "ts": "2025-02-26T10:00:00Z", "source": "unit-test", "severity": "CRITICAL", "message": "Gate tried to DENY the request unexpectedly", "context": null}
