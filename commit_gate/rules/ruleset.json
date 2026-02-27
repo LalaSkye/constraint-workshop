@@ -1,0 +1,28 @@
+{
+  "allowlist": [
+    {
+      "actor_id": "ricky",
+      "action_class": "FILE",
+      "scope_match": {
+        "project": "alpha"
+      }
+    }
+  ],
+  "denylist": [
+    {
+      "actor_id": "ci-bot",
+      "action_class": "DEPLOY",
+      "scope_match": {
+        "environment": "prod"
+      }
+    }
+  ],
+  "escalation": [
+    {
+      "action_class": "SIGN",
+      "scope_match": {
+        "environment": "prod"
+      }
+    }
+  ]
+}
