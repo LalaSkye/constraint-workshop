@@ -107,6 +107,8 @@ Deterministic, hash-bound commit authority gate — stdlib-only, no network, no 
 - **Location:** [`/commit_gate/`](commit_gate/)
 - **Proves:** determinism (byte-identical output across runs) + drift-fail (reachability expansion without contract revision is rejected)
 - **Release:** [`commit_gate-v0.1.0`](https://github.com/LalaSkye/constraint-workshop/releases/tag/commit_gate-v0.1.0)
+- **CI:** [`commit_gate_ci.yml`](https://github.com/LalaSkye/constraint-workshop/actions/workflows/commit_gate_ci.yml) (Python 3.10/3.11/3.12 matrix)
+- **Proof:** Determinism + drift-fail validated across Python 3.10/3.11/3.12.
 
 ## Scope boundaries
 
