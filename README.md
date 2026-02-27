@@ -100,6 +100,14 @@ pytest test_stop_machine.py test_authority_gate.py test_invariant_litmus.py -v
 ```
 
 
+## Commit Gate Engine (v0.1.0)
+
+Deterministic, hash-bound commit authority gate — stdlib-only, no network, no new governance primitives.
+
+- **Location:** [`/commit_gate/`](commit_gate/)
+- **Proves:** determinism (byte-identical output across runs) + drift-fail (reachability expansion without contract revision is rejected)
+- **Release:** [`commit_gate-v0.1.0`](https://github.com/LalaSkye/constraint-workshop/releases/tag/commit_gate-v0.1.0)
+
 ## Scope boundaries
 
 `/prometheus` is an **observability-only island**. It must not be imported by any execution path, gate, or pipeline code. It observes and reports; it cannot allow, hold, deny, or silence anything.
