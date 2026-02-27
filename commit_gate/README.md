@@ -55,6 +55,37 @@ python -m commit_gate evaluate --request request.json --ruleset rules/ruleset.js
 python -m commit_gate drift --baseline baselines/authority_graph.json --ruleset rules/ruleset.json --invariant-hash <hash>
 ```
 
+
+## Minimal Example
+
+Create a request file:
+
+```json
+{
+  "actor_id": "ricky",
+  "action_class": "FILE",
+  "context": {},
+  "authority_scope": {"project": "alpha"},
+  "invariant_hash": "abc123",
+  "timestamp_utc": "2026-02-27T12:00:00Z"
+}
+```
+
+Evaluate against the bundled ruleset:
+
+```bash
+python -m commit_gate evaluate \
+  --request request.json \
+  --ruleset rules/ruleset.json
+```
+
+Output (canonical JSON, deterministic):
+
+```json
+{"artefact_version":"0.1","decision_hash":"<sha256>","reasons":["allowlist_match"],"request_hash":"<sha256>","verdict":"ALLOW"}
+```
+
+Same input always produces the same `request_hash`, `decision_hash`, and `verdict`. Hashes are 64-character lowercase hex SHA-256.
 ## Tests
 
 ```bash
