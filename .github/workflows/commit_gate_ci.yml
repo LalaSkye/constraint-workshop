@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - 'commit_gate/**'
+      - '.github/workflows/commit_gate_ci.yml'
   pull_request:
     paths:
       - 'commit_gate/**'
+      - '.github/workflows/commit_gate_ci.yml'
 
 jobs:
   test:
@@ -21,7 +23,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install pytest
-        run: pip install pytest
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
       - name: Run commit_gate tests
         run: |
           cd commit_gate
