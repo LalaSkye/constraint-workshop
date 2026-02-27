@@ -20,6 +20,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install pytest
+        run: pip install pytest
       - name: Run commit_gate tests
         run: |
           cd commit_gate
