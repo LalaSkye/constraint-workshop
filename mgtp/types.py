@@ -3,6 +3,18 @@ from enum import Enum
 from typing import Optional
 
 
+class Verdict(str, Enum):
+    ALLOW = "ALLOW"
+    REFUSE = "REFUSE"
+    SUPERVISED = "SUPERVISED"
+
+
+@dataclass(frozen=True)
+class EvidenceRef:
+    ref_id: str
+    description: str
+
+
 class RiskClass(str, Enum):
     LOW = "LOW"
     MEDIUM = "MEDIUM"

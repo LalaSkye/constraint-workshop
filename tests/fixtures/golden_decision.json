@@ -1,0 +1,14 @@
+{
+  "description": "Golden fixture for DecisionRecord determinism / cross-process replay test.",
+  "inputs": {
+    "record_id": "rec-golden-001",
+    "decision_time": "2026-02-28T12:00:00Z",
+    "authority_window_start": "2026-02-28T00:00:00Z",
+    "authority_window_end": "2026-02-28T23:59:59Z",
+    "verdict": "ALLOW",
+    "reason_codes": ["allowlist_match"],
+    "provided_evidence": [{"ref_id": "ev-001", "description": "owner confirmed"}]
+  },
+  "golden_canonical_b64": "eyJhdXRob3JpdHlfd2luZG93X2VuZCI6IjIwMjYtMDItMjhUMjM6NTk6NTlaIiwiYXV0aG9yaXR5X3dpbmRvd19zdGFydCI6IjIwMjYtMDItMjhUMDA6MDA6MDBaIiwiZGVjaXNpb25fdGltZSI6IjIwMjYtMDItMjhUMTI6MDA6MDBaIiwicHJvdmlkZWRfZXZpZGVuY2UiOlt7ImRlc2NyaXB0aW9uIjoib3duZXIgY29uZmlybWVkIiwicmVmX2lkIjoiZXYtMDAxIn1dLCJyZWFzb25fY29kZXMiOlsiYWxsb3dsaXN0X21hdGNoIl0sInJlY29yZF9pZCI6InJlYy1nb2xkZW4tMDAxIiwidmVyZGljdCI6IkFMTE9XIn0=",
+  "golden_hash": "eddc5350bb3f9f584d7c52cbf940bb4e294573e8c5ddf7f12d9f5ca99150bf78"
+}
