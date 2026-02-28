@@ -24,6 +24,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest
 
+      - name: Check for binary artefacts
+        run: |
+          if git ls-files | grep -qE '(__pycache__|\.py[cod]$)'; then
+            echo "ERROR: committed __pycache__ or .pyc/.pyo/.pyd files detected"
+            git ls-files | grep -E '(__pycache__|\.py[cod]$)'
+            exit 1
+          fi
+
+      - name: Check forbidden files not modified
+        run: |
+          git fetch origin main --depth=1
+          if git diff --name-only origin/main HEAD | grep -qE '(^authority_gate\.py$|^stop_machine\.py$|^commit_gate/)'; then
+            echo "ERROR: forbidden files modified"
+            git diff --name-only origin/main HEAD | grep -E '(^authority_gate\.py$|^stop_machine\.py$|^commit_gate/)'
+            exit 1
+          fi
+
       - name: Run tests
         run: |
           pytest -q
