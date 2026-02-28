@@ -5,8 +5,39 @@ on:
   pull_request:
 
 jobs:
+  forbidden-file-drift-guard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fail if forbidden files are modified
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          CHANGED=$(git diff --name-only "$BASE" "$HEAD")
+          FORBIDDEN_TOUCHED=""
+          while IFS= read -r f; do
+            case "$f" in
+              authority_gate.py|stop_machine.py|commit_gate/*)
+                FORBIDDEN_TOUCHED="$FORBIDDEN_TOUCHED $f"
+                ;;
+            esac
+          done <<< "$CHANGED"
+          if [ -n "$FORBIDDEN_TOUCHED" ]; then
+            echo "ERROR: forbidden files modified in this PR:$FORBIDDEN_TOUCHED"
+            exit 1
+          fi
+          echo "OK: no forbidden files modified."
+
   tests:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
