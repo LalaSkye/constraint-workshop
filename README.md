@@ -110,6 +110,46 @@ Deterministic, hash-bound commit authority gate — stdlib-only, no network, no 
 - **CI:** [`commit_gate_ci.yml`](https://github.com/LalaSkye/constraint-workshop/actions/workflows/commit_gate_ci.yml) (Python 3.10/3.11/3.12 matrix)
 - **Proof:** Determinism + drift-fail validated across Python 3.10/3.11/3.12.
 
+## Deterministic Decision Artefact Demo
+
+Proves: same inputs → same bytes → same hash → replay works.
+
+### Input parameters
+
+| Field | Value |
+|-------|-------|
+| `actor_id` | `demo-actor` |
+| `action_class` | `FILE` |
+| `context.description` | `minimal demo commit` |
+| `authority_scope.project` | `demo-project` |
+| `invariant_hash` | `0000…0000` (64 zeros) |
+| Ruleset | allowlist: `demo-actor / FILE / demo-project` |
+
+### Output artefact
+
+```
+verdict        : ALLOW
+decision_hash  : fab8740c920489154038063620e1453460e1ea1549d0cb1f0cb2dca0ce860360
+canonical_bytes (base64, first 64 chars):
+eyJhcnRlZmFjdF92ZXJzaW9uIjoiMC4xIiwiZGVjaXNpb25faGFzaCI6ImZhYj…
+```
+
+Full base64 stored in [`tests/fixtures/golden_canonical_bytes.b64`](tests/fixtures/golden_canonical_bytes.b64).
+
+### Reproduce
+
+```bash
+python examples/minimal_decision_demo.py
+```
+
+### Replay test
+
+```bash
+pytest tests/test_replay_decision.py -v
+```
+
+---
+
 ## Scope boundaries
 
 `/prometheus` is an **observability-only island**. It must not be imported by any execution path, gate, or pipeline code. It observes and reports; it cannot allow, hold, deny, or silence anything.
