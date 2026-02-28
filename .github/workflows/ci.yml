@@ -27,3 +27,7 @@ jobs:
       - name: Run tests
         run: |
           pytest -q
+
+      - name: Run MGTP decision artefact demo (check mode)
+        run: |
+          python examples/minimal_decision_demo.py
