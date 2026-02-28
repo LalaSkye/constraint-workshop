@@ -24,6 +24,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest
 
+      - name: Check no binary artefacts committed
+        run: |
+          if git ls-files | grep -qE '(__pycache__|\.py[cod]$)'; then
+            echo "ERROR: committed binary artefacts detected" >&2
+            git ls-files | grep -E '(__pycache__|\.py[cod]$)' >&2
+            exit 1
+          fi
+
+      - name: Check no protected files modified
+        run: |
+          git fetch origin main --depth=1
+          if git diff --name-only origin/main...HEAD | grep -qE '^(authority_gate\.py|stop_machine\.py|commit_gate/)'; then
+            echo "ERROR: diff touches protected files" >&2
+            git diff --name-only origin/main...HEAD | grep -E '^(authority_gate\.py|stop_machine\.py|commit_gate/)' >&2
+            exit 1
+          fi
+
       - name: Run tests
         run: |
           pytest -q
