@@ -1,0 +1,12 @@
+{
+  "request": {
+    "actor_id": "ricky",
+    "action_class": "FILE",
+    "context": {"description": "deploy to alpha", "ref": "main"},
+    "authority_scope": {"project": "alpha"},
+    "invariant_hash": "v1-contract-deadbeef"
+  },
+  "expected_verdict": "ALLOW",
+  "expected_request_hash": "ff498443e4ad411ef9f8f05ee7d05fa22540d99011ca5ba90db912e33a86dac3",
+  "expected_decision_hash": "771a536a9ba55d8ebb97a3fc06185c70286cdca814fede6a4f53734c9b22290f"
+}
