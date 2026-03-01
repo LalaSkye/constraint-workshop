@@ -68,6 +68,76 @@ pytest test_stop_machine.py test_authority_gate.py test_invariant_litmus.py -v
 | `.github/workflows/ci.yml` | `ci` | push / pull_request (all paths) |
 | `.github/workflows/commit_gate_ci.yml` | `Commit Gate CI` | push / pull_request on `commit_gate/**` |
 
+## Proof surface
+
+### Authority gate primitive
+
+**File:** `authority_gate.py`  
+**Test file:** `test_authority_gate.py`
+
+#### Evidence levels (totally ordered, monotonic)
+
+| Name | Value |
+|---|---|
+| `Evidence.NONE` | 0 |
+| `Evidence.USER` | 1 |
+| `Evidence.OWNER` | 2 |
+| `Evidence.ADMIN` | 3 |
+
+#### Decision outcomes
+
+| Name | Value |
+|---|---|
+| `Decision.DENY` | 0 |
+| `Decision.ALLOW` | 1 |
+
+#### Interface
+
+```python
+from authority_gate import Evidence, Decision, AuthorityGate
+
+gate = AuthorityGate(Evidence.OWNER)   # required_level fixed at construction
+gate.check(Evidence.ADMIN)             # -> Decision.ALLOW  (provided >= required)
+gate.check(Evidence.USER)              # -> Decision.DENY   (provided < required)
+```
+
+`check()` is pure: same inputs always produce the same output. No side effects, no logging, no state mutation.
+
+#### Stated invariants (from source docstring)
+
+- `required_level` is fixed at construction; immutable thereafter.
+- `check()` is pure — same inputs → same output.
+- Evidence ordering is total and monotonic (`NONE < USER < OWNER < ADMIN`).
+- No side effects. No logging. No state mutation.
+- Passing a non-`Evidence` value to either `__init__` or `check()` raises `TypeError`.
+
+#### Test coverage (`test_authority_gate.py`)
+
+| Test | What it proves |
+|---|---|
+| `test_gate_stores_required_level` | `required_level` property is preserved at construction |
+| `test_gate_rejects_non_evidence_required` | `TypeError` on non-`Evidence` constructor arg |
+| `test_exact_match_allows` | `provided == required` → `ALLOW` |
+| `test_higher_than_required_allows` | `provided > required` → `ALLOW` |
+| `test_admin_always_passes_any_gate` | `ADMIN` passes every gate level |
+| `test_none_denied_by_user_gate` | `NONE` < `USER` → `DENY` |
+| `test_user_denied_by_admin_gate` | `USER` < `ADMIN` → `DENY` |
+| `test_owner_denied_by_admin_gate` | `OWNER` < `ADMIN` → `DENY` |
+| `test_none_gate_allows_everything` | Gate at `NONE` passes all evidence levels |
+| `test_check_rejects_non_evidence_provided` | `TypeError` on non-`Evidence` `check()` arg |
+| `test_deterministic_across_calls` | 100-iteration proof: same inputs → same output every call |
+| `test_evidence_ordering_is_total` | `NONE < USER < OWNER < ADMIN` by integer comparison |
+
+#### How to run
+
+```bash
+# from the repo root
+pip install pytest
+pytest test_authority_gate.py -v
+```
+
+Expected: 12 tests pass.
+
 ## Post-ready proof links
 
 | Label | URL |
