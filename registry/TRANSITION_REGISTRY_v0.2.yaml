@@ -1,0 +1,8 @@
+version: 0.2
+
+transitions:
+  - id: "TOOL_CALL_HTTP"
+    irreversible: true
+    risk_class: "HIGH"
+    required_authority: "OWNER"
+    gate_version: "v0.2"
