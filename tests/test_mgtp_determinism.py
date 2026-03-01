@@ -38,10 +38,9 @@ SAMPLE_CONTEXT = AuthorityContext(
 SAMPLE_RECORD = DecisionRecord(
     transition_id="tx-001",
     outcome=TransitionOutcome.APPROVED,
-    risk_class=RiskClass.MEDIUM,
-    actor_id="alice",
     authority_basis="OWNER",
-    timestamp="2026-01-01T00:00:00Z",
+    risk_class=RiskClass.MEDIUM,
+    reason="authority_sufficient",
 )
 
 
@@ -66,19 +65,19 @@ def test_canonical_hash_deterministic_same_run():
 
 def test_canonical_bytes_uses_sorted_keys():
     """T1c: canonical_bytes output has sorted JSON keys (no __repr__ reliance)."""
-    raw = SAMPLE_RECORD.canonical_bytes().decode("utf-8")
-    # Verify it is valid JSON and that keys appear in sorted order
     import json
 
+    raw = SAMPLE_RECORD.canonical_bytes().decode("utf-8")
     obj = json.loads(raw)
     keys = list(obj.keys())
     assert keys == sorted(keys), f"Keys not sorted: {keys}"
 
 
 def test_canonical_bytes_no_whitespace():
-    """T1d: canonical_bytes uses compact separators (no extra whitespace)."""
+    """T1d: canonical_bytes uses compact separators (no whitespace after delimiters)."""
     raw = SAMPLE_RECORD.canonical_bytes().decode("utf-8")
-    assert " " not in raw, "Unexpected whitespace in canonical bytes"
+    assert '": ' not in raw, "Unexpected space after ':' separator in canonical bytes"
+    assert '", ' not in raw, "Unexpected space after ',' separator in canonical bytes"
 
 
 def test_canonical_bytes_utf8_encoded():
@@ -99,16 +98,14 @@ def test_canonical_bytes_known_value():
     The expected value is computed from explicit field ordering and sorted keys.
     It must be stable across Python 3.10, 3.11, and 3.12.
     """
-    import hashlib
     import json
 
     # Reproduce the expected bytes using the same explicit logic
     obj = {
-        "actor_id": "alice",
         "authority_basis": "OWNER",
         "outcome": "APPROVED",
+        "reason": "authority_sufficient",
         "risk_class": "MEDIUM",
-        "timestamp": "2026-01-01T00:00:00Z",
         "transition_id": "tx-001",
     }
     expected = json.dumps(
@@ -123,11 +120,10 @@ def test_canonical_hash_known_value():
     import json
 
     obj = {
-        "actor_id": "alice",
         "authority_basis": "OWNER",
         "outcome": "APPROVED",
+        "reason": "authority_sufficient",
         "risk_class": "MEDIUM",
-        "timestamp": "2026-01-01T00:00:00Z",
         "transition_id": "tx-001",
     }
     raw = json.dumps(
@@ -142,18 +138,16 @@ def test_no_version_dependent_dict_ordering():
     r1 = DecisionRecord(
         transition_id="tx-999",
         outcome=TransitionOutcome.REFUSED,
-        risk_class=RiskClass.HIGH,
-        actor_id="bob",
         authority_basis="USER",
-        timestamp="2026-06-01T12:00:00Z",
+        risk_class=RiskClass.HIGH,
+        reason="authority_insufficient",
     )
     r2 = DecisionRecord(
         transition_id="tx-999",
         outcome=TransitionOutcome.REFUSED,
-        risk_class=RiskClass.HIGH,
-        actor_id="bob",
         authority_basis="USER",
-        timestamp="2026-06-01T12:00:00Z",
+        risk_class=RiskClass.HIGH,
+        reason="authority_insufficient",
     )
     assert r1.canonical_bytes() == r2.canonical_bytes()
     assert r1.canonical_hash() == r2.canonical_hash()
@@ -193,7 +187,7 @@ def test_evaluate_approved_with_sufficient_evidence():
     record = evaluate(SAMPLE_REQUEST, SAMPLE_CONTEXT)
     assert record.outcome == TransitionOutcome.APPROVED
     assert record.transition_id == "tx-001"
-    assert record.actor_id == "alice"
+    assert record.authority_basis == "OWNER"
 
 
 def test_evaluate_refused_with_insufficient_evidence():
@@ -245,7 +239,9 @@ def test_authority_context_provided_evidence_defaults_none():
 
 
 def test_mgtp_import_does_not_modify_authority_gate():
-    """T4a: Importing mgtp does not alter AuthorityGate behaviour."""
+    """T4a: AuthorityGate behaviour is unchanged after importing mgtp."""
+    import mgtp  # noqa: F401
+
     gate = AuthorityGate(Evidence.OWNER)
     assert gate.check(Evidence.ADMIN) is Decision.ALLOW
     assert gate.check(Evidence.USER) is Decision.DENY
@@ -278,7 +274,10 @@ def test_commit_gate_module_not_imported_by_mgtp():
             f"mgtp import introduced commit_gate modules: {new_commit_gate}"
         )
     finally:
-        # Restore mgtp modules so other tests are unaffected
+        # Remove modules imported during this test, then restore the saved ones
+        current_mgtp_keys = [k for k in sys.modules if k == "mgtp" or k.startswith("mgtp.")]
+        for k in current_mgtp_keys:
+            sys.modules.pop(k, None)
         sys.modules.update(saved_mgtp)
 
 

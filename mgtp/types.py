@@ -42,35 +42,27 @@ class AuthorityContext:
 
 @dataclass(frozen=True)
 class DecisionRecord:
-    """Immutable record of an MGTP transition decision."""
-
+    """Immutable record of a single transition decision."""
     transition_id: str
     outcome: TransitionOutcome
-    risk_class: RiskClass
-    actor_id: str
     authority_basis: str
-    timestamp: str
+    risk_class: RiskClass
+    reason: str
 
-    def canonical_bytes(self) -> bytes:
-        """Return deterministic UTF-8 bytes for this record.
-
-        Rules:
-        - Explicit field ordering (alphabetical)
-        - Sorted keys in JSON serialisation
-        - No reliance on __repr__
-        - No unordered set serialisation
-        """
+    def to_canonical_json(self) -> bytes:
+        """Return canonical JSON bytes: sorted keys, no whitespace, UTF-8."""
         obj = {
-            "actor_id": self.actor_id,
             "authority_basis": self.authority_basis,
             "outcome": self.outcome.value,
+            "reason": self.reason,
             "risk_class": self.risk_class.value,
-            "timestamp": self.timestamp,
             "transition_id": self.transition_id,
         }
-        return json.dumps(
-            obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False
-        ).encode("utf-8")
+        return json.dumps(obj, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+    def canonical_bytes(self) -> bytes:
+        """Deterministic UTF-8 serialisation; alias for to_canonical_json()."""
+        return self.to_canonical_json()
 
     def canonical_hash(self) -> str:
         """Return sha256 hex digest (lower-case) of canonical_bytes()."""
