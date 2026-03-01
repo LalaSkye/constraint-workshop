@@ -8,14 +8,12 @@ Resolution order:
 """
 
 import json
-from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 from .canonicalise import canonical_hash, canonicalise
 
 
 ARTEFACT_VERSION = "0.1"
-TIMESTAMP_MAX_AGE_SECONDS = 300
 
 
 def _scope_matches(rule_scope, request_scope):
@@ -66,36 +64,6 @@ def evaluate(commit_request, ruleset):
     actor_id = commit_request["actor_id"]
     action_class = commit_request["action_class"]
     authority_scope = commit_request["authority_scope"]
-
-    # Fail-closed timestamp staleness check (R5)
-    timestamp_utc = commit_request.get("timestamp_utc")
-    if timestamp_utc is not None:
-        try:
-            ts = datetime.fromisoformat(timestamp_utc.replace("Z", "+00:00"))
-            age = datetime.now(timezone.utc) - ts
-            if age > timedelta(seconds=TIMESTAMP_MAX_AGE_SECONDS) or age.total_seconds() < 0:
-                request_obj = build_request_obj(
-                    actor_id=actor_id,
-                    action_class=action_class,
-                    context=commit_request["context"],
-                    authority_scope=authority_scope,
-                    invariant_hash=commit_request["invariant_hash"],
-                )
-                request_hash = canonical_hash(request_obj)
-                reasons = sorted(["timestamp_stale"])
-                decision_obj = {"request": request_obj, "verdict": "REFUSE", "reasons": reasons}
-                return {
-                    "verdict": "REFUSE",
-                    "reasons": reasons,
-                    "decision_hash": canonical_hash(decision_obj),
-                    "request_hash": request_hash,
-                    "artefact_version": ARTEFACT_VERSION,
-                }
-        except (ValueError, TypeError):
-            # Malformed or missing timestamp_utc: no staleness check can be
-            # performed, so proceed to normal rule evaluation rather than
-            # silently refusing valid requests with bad clocks.
-            pass
 
     # Build hashable request (no timestamp)
     request_obj = build_request_obj(

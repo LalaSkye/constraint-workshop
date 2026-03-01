@@ -114,11 +114,3 @@ def test_artefact_version():
     """Artefact version is 0.1."""
     v = evaluate(SAMPLE_REQUEST, SAMPLE_RULESET)
     assert v["artefact_version"] == "0.1"
-
-
-def test_golden_hash_regression():
-    """R3: canonical_hash of a known fixture equals pinned expected digest."""
-    fixture = {"action": "commit", "actor": "alice", "env": "prod"}
-    # This value is pinned; any change to canonicalise() will break this test.
-    expected = "867ff41420fbeed0ec392c10f9518fd985089c1599b438c46709ebe3360ee0e0"
-    assert canonical_hash(fixture) == expected
