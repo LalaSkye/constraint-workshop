@@ -1,7 +1,11 @@
+import hashlib
 import json
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from authority_gate import Evidence
 
 
 class RiskClass(str, Enum):
@@ -33,6 +37,7 @@ class AuthorityContext:
     actor_id: str
     authority_basis: str  # map to Evidence enum name e.g. "OWNER"
     tenant_id: str
+    provided_evidence: Optional["Evidence"] = None
 
 
 @dataclass(frozen=True)
@@ -54,3 +59,11 @@ class DecisionRecord:
             "transition_id": self.transition_id,
         }
         return json.dumps(obj, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+    def canonical_bytes(self) -> bytes:
+        """Deterministic UTF-8 serialisation; alias for to_canonical_json()."""
+        return self.to_canonical_json()
+
+    def canonical_hash(self) -> str:
+        """Return sha256 hex digest (lower-case) of canonical_bytes()."""
+        return hashlib.sha256(self.canonical_bytes()).hexdigest()
