@@ -1,7 +1,6 @@
 """Tests for mgtp.evaluate_transition — decision scenarios."""
-
+import json
 import os
-import textwrap
 
 import pytest
 
@@ -10,7 +9,7 @@ from mgtp.registry import load_registry
 from mgtp.types import AuthorityContext, RiskClass, TransitionOutcome, TransitionRequest
 
 _REAL_REGISTRY = os.path.join(
-    os.path.dirname(__file__), "..", "registry", "TRANSITION_REGISTRY_v0.2.yaml"
+    os.path.dirname(__file__), "..", "registry", "TRANSITION_REGISTRY_v0.2.json"
 )
 
 _TS = "2025-06-01T12:00:00Z"
@@ -99,19 +98,21 @@ def test_high_risk_no_override_refused(real_registry):
 
 def test_critical_risk_no_override_refused(real_registry, tmp_path):
     # Add a CRITICAL entry to a temporary registry
-    content = textwrap.dedent("""
-        version: 0.2
-        transitions:
-          - id: CRITICAL_OP
-            irreversible: true
-            risk_class: CRITICAL
-            required_authority: ADMIN
-            gate_version: v0.2
-    """)
-    p = tmp_path / "r.yaml"
-    p.write_text(content)
+    data = {
+        "schema_version": "0.2",
+        "transitions": [
+            {
+                "id": "CRITICAL_OP",
+                "irreversible": True,
+                "risk_class": "CRITICAL",
+                "required_authority": "ADMIN",
+                "gate_version": "v0.2",
+            }
+        ],
+    }
+    p = tmp_path / "r.json"
+    p.write_text(json.dumps(data, indent=2))
     reg = load_registry(str(p))
-
     req = _req(transition_id="CRITICAL_OP", risk_class=RiskClass.CRITICAL, override_token=None)
     ctx = _ctx(authority_basis="ADMIN")
     rec = evaluate_transition(req, ctx, reg)
@@ -136,19 +137,21 @@ def test_high_risk_with_override_supervised(real_registry):
 # ---------------------------------------------------------------------------
 
 def test_low_risk_approved(tmp_path):
-    content = textwrap.dedent("""
-        version: 0.2
-        transitions:
-          - id: READ_ONLY
-            irreversible: false
-            risk_class: LOW
-            required_authority: USER
-            gate_version: v0.1
-    """)
-    p = tmp_path / "r.yaml"
-    p.write_text(content)
+    data = {
+        "schema_version": "0.2",
+        "transitions": [
+            {
+                "id": "READ_ONLY",
+                "irreversible": False,
+                "risk_class": "LOW",
+                "required_authority": "USER",
+                "gate_version": "v0.1",
+            }
+        ],
+    }
+    p = tmp_path / "r.json"
+    p.write_text(json.dumps(data, indent=2))
     reg = load_registry(str(p))
-
     req = _req(transition_id="READ_ONLY", risk_class=RiskClass.LOW, override_token=None)
     ctx = _ctx(authority_basis="USER")
     rec = evaluate_transition(req, ctx, reg)
