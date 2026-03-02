@@ -1,6 +1,6 @@
-"""registry — Load and validate the MGTP transition registry from YAML."""
+"""registry — Load and validate the MGTP transition registry from JSON."""
 
-import yaml
+import json
 
 from authority_gate import Evidence
 from mgtp.types import RiskClass
@@ -9,20 +9,20 @@ _REQUIRED_FIELDS = {"id", "irreversible", "risk_class", "required_authority", "g
 
 
 def load_registry(path: str) -> dict:
-    """Load a transition registry YAML file.
+    """Load a transition registry JSON file.
 
     Returns a dict mapping transition_id -> entry dict.
 
     Raises:
-        ValueError: if the file is missing the version field, contains duplicate
+        ValueError: if the file is missing the schema_version field, contains duplicate
                     transition IDs, is missing required fields, or has invalid
                     enum values for risk_class or required_authority.
     """
     with open(path, "r", encoding="utf-8") as fh:
-        data = yaml.safe_load(fh)
+        data = json.load(fh)
 
-    if not isinstance(data, dict) or "version" not in data:
-        raise ValueError("Registry YAML must contain a top-level 'version' field.")
+    if not isinstance(data, dict) or "schema_version" not in data:
+        raise ValueError("Registry JSON must contain a top-level 'schema_version' field.")
 
     transitions = data.get("transitions", [])
     registry: dict = {}
@@ -31,7 +31,6 @@ def load_registry(path: str) -> dict:
         tid = entry.get("id")
         if tid is None:
             raise ValueError(f"Transition entry missing required field 'id': {entry}")
-
         if tid in registry:
             raise ValueError(f"Duplicate transition ID in registry: '{tid}'")
 
