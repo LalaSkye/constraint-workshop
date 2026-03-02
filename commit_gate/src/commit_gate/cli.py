@@ -9,7 +9,7 @@ import argparse
 import json
 import sys
 
-from .canonicalise import canonicalise
+from .canonicalise import canonicalise, canonicalise_jcs
 from .drift import build_authority_graph, detect_drift, load_graph, write_authority_graph
 from .engine import evaluate, load_ruleset, write_decision_report
 
@@ -19,18 +19,26 @@ def _load_json(path):
         return json.load(f)
 
 
+def _get_serialise(args):
+    """Return the serialiser function for the requested --canonicalization mode."""
+    if getattr(args, "canonicalization", None) == "jcs":
+        return canonicalise_jcs
+    return canonicalise
+
+
 def cmd_evaluate(args):
     """Evaluate a commit request against a ruleset."""
     request = _load_json(args.request)
     ruleset = load_ruleset(args.ruleset)
     verdict = evaluate(request, ruleset)
+    serialise = _get_serialise(args)
 
     # Write report
     if args.output_dir:
-        write_decision_report(verdict, verdict["request_hash"], args.output_dir)
+        write_decision_report(verdict, verdict["request_hash"], args.output_dir, serialise)
 
     # Output canonical JSON to stdout
-    sys.stdout.buffer.write(canonicalise(verdict))
+    sys.stdout.buffer.write(serialise(verdict))
     sys.stdout.buffer.write(b"\n")
     return 0 if verdict["verdict"] == "ALLOW" else 1
 
@@ -39,6 +47,7 @@ def cmd_drift(args):
     """Run drift detection between baseline and current ruleset."""
     ruleset = load_ruleset(args.ruleset)
     current_graph = build_authority_graph(ruleset)
+    serialise = _get_serialise(args)
 
     # Write current graph
     if args.output_dir:
@@ -55,7 +64,7 @@ def cmd_drift(args):
         acknowledge_expansion=args.acknowledge_expansion,
     )
 
-    sys.stdout.buffer.write(canonicalise(result))
+    sys.stdout.buffer.write(serialise(result))
     sys.stdout.buffer.write(b"\n")
     return 0 if result["pass"] else 1
 
@@ -69,6 +78,12 @@ def main():
     p_eval.add_argument("--request", required=True, help="Path to request JSON")
     p_eval.add_argument("--ruleset", required=True, help="Path to ruleset JSON")
     p_eval.add_argument("--output-dir", default=None, help="Directory for report artefacts")
+    p_eval.add_argument(
+        "--canonicalization",
+        choices=["jcs"],
+        default=None,
+        help="Canonicalization standard for output (jcs = RFC 8785)",
+    )
 
     # drift
     p_drift = sub.add_parser("drift", help="Detect authority drift")
@@ -78,6 +93,12 @@ def main():
     p_drift.add_argument("--current-invariant-hash", default=None, help="Current invariant hash (defaults to baseline)")
     p_drift.add_argument("--acknowledge-expansion", action="store_true", help="Acknowledge expansion with contract revision")
     p_drift.add_argument("--output-dir", default=None, help="Directory for graph artefacts")
+    p_drift.add_argument(
+        "--canonicalization",
+        choices=["jcs"],
+        default=None,
+        help="Canonicalization standard for output (jcs = RFC 8785)",
+    )
 
     args = parser.parse_args()
     if not args.command:
