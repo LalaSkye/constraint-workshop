@@ -10,29 +10,11 @@ Schema: decision_space_snapshot_v1
   "reason_code_families": {"<family>": [string]}
 }
 
-Canonicalization rules (all deterministic, stdlib-only):
-- JSON serialized as UTF-8, sorted keys, no whitespace (separators=(",", ":"))
-- variables and exclusions: sorted lexicographically
-- allowed_transitions: sorted by (from, to)
-- reason_code_families: keys sorted, each value list sorted lexicographically
-- SHA256 hex digest produced from canonical JSON bytes (lower-case)
-
 All operations are deterministic, stdlib-only, fail-closed on schema violation.
 """
 
 import hashlib
 import json
-
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
-
-SCHEMA_VERSION = "v1"
-
-# Enumerated reason-code family names.  All families referenced in a snapshot
-# must be members of this set; free-text family names are rejected by
-# validate_snapshot.
-KNOWN_REASON_FAMILIES = frozenset({"ALLOW", "REFUSE", "ESCALATE"})
 
 
 # ---------------------------------------------------------------------------
@@ -97,11 +79,6 @@ def validate_snapshot(snapshot: dict) -> None:
     for family, codes in snapshot["reason_code_families"].items():
         if not isinstance(family, str):
             raise ValueError(f"reason_code_families key must be a string, got {type(family).__name__}")
-        if family not in KNOWN_REASON_FAMILIES:
-            raise ValueError(
-                f"unknown reason_code_families key: {family!r}; "
-                f"expected one of {sorted(KNOWN_REASON_FAMILIES)}"
-            )
         if not isinstance(codes, list):
             raise ValueError(f"reason_code_families[{family!r}] must be a list")
         for j, code in enumerate(codes):
@@ -223,44 +200,4 @@ def diff_snapshots(a: dict, b: dict) -> dict:
         "exclusions_removed": sorted(excl_a - excl_b),
         "reason_codes_added": reason_codes_added,
         "reason_codes_removed": reason_codes_removed,
-    }
-
-
-# ---------------------------------------------------------------------------
-# CI Replay Envelope
-# ---------------------------------------------------------------------------
-
-def build_diff_report(snapshot_a: dict, snapshot_b: dict) -> dict:
-    """Build a PASS/FAIL CI replay envelope from two snapshots.
-
-    Both snapshots are validated and diffed.  The returned dict is fully
-    deterministic: identical inputs always produce byte-identical canonical
-    JSON when serialized with sort_keys=True.
-
-    Returns:
-    {
-      "schema_version": str,       -- always SCHEMA_VERSION ("v1")
-      "status": "PASS" | "FAIL",   -- PASS = no structural differences
-      "snapshot_a_hash": str,      -- sha256 of canonical snapshot A
-      "snapshot_b_hash": str,      -- sha256 of canonical snapshot B
-      "diff": dict                 -- output of diff_snapshots(a, b)
-    }
-    """
-    diff = diff_snapshots(snapshot_a, snapshot_b)
-    has_diff = bool(
-        diff["variables_added"]
-        or diff["variables_removed"]
-        or diff["transitions_added"]
-        or diff["transitions_removed"]
-        or diff["exclusions_added"]
-        or diff["exclusions_removed"]
-        or diff["reason_codes_added"]
-        or diff["reason_codes_removed"]
-    )
-    return {
-        "schema_version": SCHEMA_VERSION,
-        "status": "FAIL" if has_diff else "PASS",
-        "snapshot_a_hash": snapshot_hash(snapshot_a),
-        "snapshot_b_hash": snapshot_hash(snapshot_b),
-        "diff": diff,
     }

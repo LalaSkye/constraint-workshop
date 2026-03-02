@@ -9,9 +9,6 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mgtp.decision_space import (
-    KNOWN_REASON_FAMILIES,
-    SCHEMA_VERSION,
-    build_diff_report,
     canonicalize_snapshot,
     diff_snapshots,
     snapshot_hash,
@@ -382,7 +379,7 @@ def test_diff_no_false_positives_for_unchanged_items():
         "variables": ["x", "y"],
         "allowed_transitions": [{"from": "A", "to": "B"}],
         "exclusions": ["ex1"],
-        "reason_code_families": {"ALLOW": ["allowlist_match"]},
+        "reason_code_families": {"FAM": ["code1"]},
     }
     snap_b = dict(snap_a)
     snap_b["variables"] = ["x", "y", "z"]  # only add z
@@ -410,93 +407,3 @@ def test_diff_output_keys_present():
         "reason_codes_removed",
     }
     assert set(diff.keys()) == expected_keys
-
-
-# ---------------------------------------------------------------------------
-# Constants — SCHEMA_VERSION and KNOWN_REASON_FAMILIES
-# ---------------------------------------------------------------------------
-
-def test_schema_version_value():
-    assert SCHEMA_VERSION == "v1"
-
-
-def test_known_reason_families_contains_required():
-    assert "ALLOW" in KNOWN_REASON_FAMILIES
-    assert "REFUSE" in KNOWN_REASON_FAMILIES
-    assert "ESCALATE" in KNOWN_REASON_FAMILIES
-
-
-def test_known_reason_families_is_frozenset():
-    assert isinstance(KNOWN_REASON_FAMILIES, frozenset)
-
-
-def test_unknown_family_name_rejected_by_validate():
-    snap = dict(VALID_SNAPSHOT)
-    snap["reason_code_families"] = {"UNKNOWN_FAM": ["some_code"]}
-    with pytest.raises(ValueError, match="unknown reason_code_families key"):
-        validate_snapshot(snap)
-
-
-def test_known_family_names_accepted_by_validate():
-    snap = {
-        "version": "v1",
-        "variables": ["x"],
-        "allowed_transitions": [],
-        "exclusions": [],
-        "reason_code_families": {
-            "ALLOW": ["allowlist_match"],
-            "REFUSE": ["default_refuse"],
-            "ESCALATE": ["escalation_match"],
-        },
-    }
-    validate_snapshot(snap)  # must not raise
-
-
-# ---------------------------------------------------------------------------
-# build_diff_report — PASS/FAIL CI replay envelope
-# ---------------------------------------------------------------------------
-
-def test_diff_report_pass_for_identical_snapshots():
-    report = build_diff_report(VALID_SNAPSHOT, VALID_SNAPSHOT)
-    assert report["status"] == "PASS"
-
-
-def test_diff_report_fail_for_different_snapshots():
-    report = build_diff_report(VALID_SNAPSHOT, VALID_SNAPSHOT_B)
-    assert report["status"] == "FAIL"
-
-
-def test_diff_report_schema_version():
-    report = build_diff_report(VALID_SNAPSHOT, VALID_SNAPSHOT)
-    assert report["schema_version"] == SCHEMA_VERSION
-
-
-def test_diff_report_envelope_keys():
-    report = build_diff_report(VALID_SNAPSHOT, VALID_SNAPSHOT_B)
-    assert set(report.keys()) == {
-        "schema_version", "status", "snapshot_a_hash", "snapshot_b_hash", "diff",
-    }
-
-
-def test_diff_report_hashes_match_snapshot_hash():
-    report = build_diff_report(VALID_SNAPSHOT, VALID_SNAPSHOT_B)
-    assert report["snapshot_a_hash"] == snapshot_hash(VALID_SNAPSHOT)
-    assert report["snapshot_b_hash"] == snapshot_hash(VALID_SNAPSHOT_B)
-
-
-def test_diff_report_is_deterministic():
-    r1 = build_diff_report(VALID_SNAPSHOT, VALID_SNAPSHOT_B)
-    r2 = build_diff_report(VALID_SNAPSHOT, VALID_SNAPSHOT_B)
-    assert json.dumps(r1, sort_keys=True) == json.dumps(r2, sort_keys=True)
-
-
-def test_diff_report_diff_matches_diff_snapshots():
-    report = build_diff_report(VALID_SNAPSHOT, VALID_SNAPSHOT_B)
-    expected_diff = diff_snapshots(VALID_SNAPSHOT, VALID_SNAPSHOT_B)
-    assert report["diff"] == expected_diff
-
-
-def test_diff_report_raises_on_invalid_snapshot():
-    bad = {"version": "v1"}
-    with pytest.raises(ValueError):
-        build_diff_report(bad, VALID_SNAPSHOT)
