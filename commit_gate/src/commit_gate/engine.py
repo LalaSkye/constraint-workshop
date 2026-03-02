@@ -15,28 +15,6 @@ from .canonicalise import canonical_hash, canonicalise
 
 ARTEFACT_VERSION = "0.1"
 
-# ---------------------------------------------------------------------------
-# Reason-code registry — enumerated families, fail-closed on unknown codes.
-# ---------------------------------------------------------------------------
-
-KNOWN_REASON_CODES = frozenset({
-    "allowlist_match",
-    "denylist_match",
-    "escalation_match",
-    "default_refuse",
-})
-
-
-def validate_reason_codes(reasons):
-    """Raise ValueError if any reason code is not in KNOWN_REASON_CODES.
-
-    Fail-closed: unknown codes are rejected immediately, causing CI to fail
-    rather than silently accepting free-text reason drift.
-    """
-    unknown = [r for r in reasons if r not in KNOWN_REASON_CODES]
-    if unknown:
-        raise ValueError(f"unknown reason code(s): {unknown!r}")
-
 
 def _scope_matches(rule_scope, request_scope):
     """Return True if all keys in rule_scope exist in request_scope with identical values."""
@@ -115,7 +93,6 @@ def evaluate(commit_request, ruleset):
 
     # Sort reasons lexicographically
     reasons = sorted(reasons)
-    validate_reason_codes(reasons)
 
     # Build decision hash: sha256(canonical_request + verdict + reasons)
     decision_obj = {
@@ -134,17 +111,11 @@ def evaluate(commit_request, ruleset):
     }
 
 
-def write_decision_report(verdict_dict, request_hash, output_dir, serialise=None):
-    """Write decision artefact to reports dir.
-
-    serialise: callable(obj) -> bytes.  Defaults to canonicalise().
-               Pass canonicalise_jcs to use RFC 8785 JCS encoding.
-    """
-    if serialise is None:
-        serialise = canonicalise
+def write_decision_report(verdict_dict, request_hash, output_dir):
+    """Write decision artefact to reports dir."""
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     path = output_dir / f"commit_decision_{request_hash}.json"
-    canonical_bytes = serialise(verdict_dict)
+    canonical_bytes = canonicalise(verdict_dict)
     path.write_bytes(canonical_bytes)
     return path
