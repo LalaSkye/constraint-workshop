@@ -1,8 +1,8 @@
 """Tests for mgtp.evaluate_transition — registry-based thin-wrapper evaluator."""
 
+import json
 import os
 import sys
-import textwrap
 from pathlib import Path
 
 import pytest
@@ -14,7 +14,7 @@ from mgtp.registry import load_registry
 from mgtp.types import AuthorityContext, DecisionRecord, RiskClass, TransitionOutcome, TransitionRequest
 
 _REAL_REGISTRY = os.path.join(
-    os.path.dirname(__file__), "..", "registry", "TRANSITION_REGISTRY_v0.2.yaml"
+    os.path.dirname(__file__), "..", "registry", "TRANSITION_REGISTRY_v0.2.json"
 )
 _TS = "2025-06-01T12:00:00Z"
 
@@ -51,8 +51,6 @@ def _ctx(actor_id="alice", authority_basis="OWNER", tenant_id="t1"):
 # ---------------------------------------------------------------------------
 # Scenario 1: undeclared transition → REFUSED
 # ---------------------------------------------------------------------------
-
-
 def test_undeclared_transition_refused(real_registry):
     req = _req(transition_id="NO_SUCH_TRANSITION")
     rec = evaluate_transition(req, _ctx(), real_registry)
@@ -63,8 +61,6 @@ def test_undeclared_transition_refused(real_registry):
 # ---------------------------------------------------------------------------
 # Scenario 2: insufficient authority → REFUSED
 # ---------------------------------------------------------------------------
-
-
 def test_insufficient_authority_refused(real_registry):
     req = _req()
     ctx = _ctx(authority_basis="USER")
@@ -84,8 +80,6 @@ def test_none_authority_refused(real_registry):
 # ---------------------------------------------------------------------------
 # Scenario 3: sufficient authority → APPROVED (HIGH risk, not CRITICAL+irreversible)
 # ---------------------------------------------------------------------------
-
-
 def test_owner_approved_for_high_risk(real_registry):
     req = _req(risk_class=RiskClass.HIGH, irreversible=False)
     ctx = _ctx(authority_basis="OWNER")
@@ -97,22 +91,22 @@ def test_owner_approved_for_high_risk(real_registry):
 # ---------------------------------------------------------------------------
 # Scenario 4: CRITICAL + irreversible → SUPERVISED
 # ---------------------------------------------------------------------------
-
-
 def test_critical_irreversible_supervised(tmp_path):
-    content = textwrap.dedent("""
-        version: 0.2
-        transitions:
-          - id: CRITICAL_OP
-            irreversible: true
-            risk_class: CRITICAL
-            required_authority: ADMIN
-            gate_version: v0.2
-    """)
-    p = tmp_path / "r.yaml"
-    p.write_text(content)
+    content = json.dumps({
+        "schema_version": "0.2",
+        "transitions": [
+            {
+                "id": "CRITICAL_OP",
+                "irreversible": True,
+                "risk_class": "CRITICAL",
+                "required_authority": "ADMIN",
+                "gate_version": "v0.2"
+            }
+        ]
+    })
+    p = tmp_path / "r.json"
+    p.write_text(content, encoding="utf-8")
     reg = load_registry(str(p))
-
     req = _req(transition_id="CRITICAL_OP", risk_class=RiskClass.CRITICAL, irreversible=True)
     ctx = _ctx(authority_basis="ADMIN")
     rec = evaluate_transition(req, ctx, reg)
@@ -123,22 +117,22 @@ def test_critical_irreversible_supervised(tmp_path):
 # ---------------------------------------------------------------------------
 # Scenario 5: LOW risk with sufficient authority → APPROVED
 # ---------------------------------------------------------------------------
-
-
 def test_low_risk_approved(tmp_path):
-    content = textwrap.dedent("""
-        version: 0.2
-        transitions:
-          - id: READ_ONLY
-            irreversible: false
-            risk_class: LOW
-            required_authority: USER
-            gate_version: v0.1
-    """)
-    p = tmp_path / "r.yaml"
-    p.write_text(content)
+    content = json.dumps({
+        "schema_version": "0.2",
+        "transitions": [
+            {
+                "id": "READ_ONLY",
+                "irreversible": False,
+                "risk_class": "LOW",
+                "required_authority": "USER",
+                "gate_version": "v0.1"
+            }
+        ]
+    })
+    p = tmp_path / "r.json"
+    p.write_text(content, encoding="utf-8")
     reg = load_registry(str(p))
-
     req = _req(transition_id="READ_ONLY", risk_class=RiskClass.LOW, irreversible=False)
     ctx = _ctx(authority_basis="USER")
     rec = evaluate_transition(req, ctx, reg)
@@ -149,8 +143,6 @@ def test_low_risk_approved(tmp_path):
 # ---------------------------------------------------------------------------
 # Result is a DecisionRecord
 # ---------------------------------------------------------------------------
-
-
 def test_returns_decision_record(real_registry):
     req = _req(risk_class=RiskClass.HIGH, irreversible=False)
     rec = evaluate_transition(req, _ctx(), real_registry)
@@ -160,8 +152,6 @@ def test_returns_decision_record(real_registry):
 # ---------------------------------------------------------------------------
 # Audit fields populated
 # ---------------------------------------------------------------------------
-
-
 def test_audit_fields_populated(real_registry):
     req = _req(risk_class=RiskClass.HIGH, irreversible=False)
     ctx = _ctx(actor_id="alice", tenant_id="t1")
@@ -185,8 +175,6 @@ def test_authority_basis_is_actor_authority(real_registry):
 # ---------------------------------------------------------------------------
 # Determinism
 # ---------------------------------------------------------------------------
-
-
 def test_deterministic_same_inputs(real_registry):
     req = _req(risk_class=RiskClass.HIGH, irreversible=False)
     ctx = _ctx()
