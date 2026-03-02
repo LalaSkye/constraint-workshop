@@ -41,6 +41,22 @@ no runtime state, and no hidden behavior.
 - Negation window: 2 words.
 - No external dependencies beyond `re`.
 
+## Hard decision invariants (enforced by all gate primitives)
+
+These rules are non-negotiable and must be encoded in every gate, engine, and policy primitive:
+
+1. **Fail-closed defaults** — if policy, identity, or logging is missing, the decision is `DENY`.
+2. **No silent success** — every decision must produce a Receipt; if a Receipt cannot be created, the decision is `DENY`.
+3. **No self-approval** — `actor_id` cannot appear as an approver for the same request; if it does, the decision is `DENY`.
+4. **Approval required but absent** — if approval is required and no valid approval is present, the decision is `HOLD` (never `ALLOW`).
+5. **Tamper-evident log** — Receipts carry `{seq, prev_hash, this_hash}`; any out-of-order sequence or invalid hash linkage must be rejected.
+
+## Process rules
+
+- **Prefer schemas + conformance tests before implementation.** Define the JSON schema and golden test vectors first; open a separate PR for the implementation.
+- **PRs must be small and reviewable.** One primitive or one contract change per PR.
+- **No scope expansion.** A PR that adds new verdicts, new primitives, or new cross-module imports without a preceding schema PR must be rejected.
+
 ## Pull request checklist
 
 Before opening a PR, verify:
