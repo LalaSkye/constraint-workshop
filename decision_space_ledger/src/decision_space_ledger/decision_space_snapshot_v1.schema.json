@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "decision_space_snapshot_v1",
+  "description": "A versioned snapshot of a decision space: variables, transitions, exclusions, and reason-code families.",
+  "type": "object",
+  "required": ["version", "variables", "allowed_transitions", "exclusions", "reason_code_families"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "enum": ["v1"],
+      "description": "Schema version identifier."
+    },
+    "variables": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true,
+      "description": "The set of decision variables in this space."
+    },
+    "allowed_transitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "additionalProperties": false,
+        "properties": {
+          "from": {"type": "string", "description": "Source state."},
+          "to":   {"type": "string", "description": "Target state."}
+        }
+      },
+      "description": "Permitted state transitions."
+    },
+    "exclusions": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true,
+      "description": "Variable names or transition identifiers explicitly excluded from the space."
+    },
+    "reason_code_families": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {"type": "string"},
+        "uniqueItems": true
+      },
+      "description": "Named families of reason codes.  Each key is a family name; each value is a list of unique reason code strings."
+    }
+  }
+}
