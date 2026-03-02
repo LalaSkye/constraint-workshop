@@ -14,6 +14,7 @@ from mgtp.types import (
     TransitionRequest,
 )
 
+
 # ---------------------------------------------------------------------------
 # Shared fixtures
 # ---------------------------------------------------------------------------
@@ -48,41 +49,39 @@ SAMPLE_RECORD = DecisionRecord(
 # Task 1 — Deterministic Canonicalisation
 # ---------------------------------------------------------------------------
 
-
 def test_canonical_bytes_deterministic_same_run():
-    """T1a: canonical_bytes() is byte-identical across multiple calls in the same run."""
-    results = [SAMPLE_RECORD.canonical_bytes() for _ in range(20)]
-    assert all(r == results[0] for r in results), "canonical_bytes() is not stable"
+    """T1a: canonical_bytes is byte-identical across multiple calls in the same run."""
+    results = [SAMPLE_RECORD.canonical_bytes for _ in range(20)]
+    assert all(r == results[0] for r in results), "canonical_bytes is not stable"
 
 
 def test_canonical_hash_deterministic_same_run():
-    """T1b: canonical_hash() is identical across multiple invocations in the same run."""
-    hashes = [SAMPLE_RECORD.canonical_hash() for _ in range(20)]
-    assert all(h == hashes[0] for h in hashes), "canonical_hash() is not stable"
+    """T1b: canonical_hash is identical across multiple invocations in the same run."""
+    hashes = [SAMPLE_RECORD.canonical_hash for _ in range(20)]
+    assert all(h == hashes[0] for h in hashes), "canonical_hash is not stable"
     assert len(hashes[0]) == 64
     assert hashes[0] == hashes[0].lower()
 
 
 def test_canonical_bytes_uses_sorted_keys():
-    """T1c: canonical_bytes output has sorted JSON keys (no __repr__ reliance)."""
+    """T1c: canonical_bytes output has sorted JSON keys."""
     import json
-
-    raw = SAMPLE_RECORD.canonical_bytes().decode("utf-8")
+    raw = SAMPLE_RECORD.canonical_bytes.decode("utf-8")
     obj = json.loads(raw)
     keys = list(obj.keys())
     assert keys == sorted(keys), f"Keys not sorted: {keys}"
 
 
 def test_canonical_bytes_no_whitespace():
-    """T1d: canonical_bytes uses compact separators (no whitespace after delimiters)."""
-    raw = SAMPLE_RECORD.canonical_bytes().decode("utf-8")
-    assert '": ' not in raw, "Unexpected space after ':' separator in canonical bytes"
-    assert '", ' not in raw, "Unexpected space after ',' separator in canonical bytes"
+    """T1d: canonical_bytes uses compact separators."""
+    raw = SAMPLE_RECORD.canonical_bytes.decode("utf-8")
+    assert '": ' not in raw, "Unexpected space after ':' separator"
+    assert '", ' not in raw, "Unexpected space after ',' separator"
 
 
 def test_canonical_bytes_utf8_encoded():
     """T1e: canonical_bytes returns bytes encoded as UTF-8."""
-    b = SAMPLE_RECORD.canonical_bytes()
+    b = SAMPLE_RECORD.canonical_bytes
     assert isinstance(b, bytes)
     b.decode("utf-8")  # Must not raise
 
@@ -91,16 +90,9 @@ def test_canonical_bytes_utf8_encoded():
 # Task 2 — Cross-Version Stability Guard
 # ---------------------------------------------------------------------------
 
-
 def test_canonical_bytes_known_value():
-    """T2a: canonical_bytes matches a known pinned value (cross-version stability).
-
-    The expected value is computed from explicit field ordering and sorted keys.
-    It must be stable across Python 3.10, 3.11, and 3.12.
-    """
+    """T2a: canonical_bytes matches a known pinned value."""
     import json
-
-    # Reproduce the expected bytes using the same explicit logic
     obj = {
         "authority_basis": "OWNER",
         "outcome": "APPROVED",
@@ -111,14 +103,13 @@ def test_canonical_bytes_known_value():
     expected = json.dumps(
         obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False
     ).encode("utf-8")
-    assert SAMPLE_RECORD.canonical_bytes() == expected
+    assert SAMPLE_RECORD.canonical_bytes == expected
 
 
 def test_canonical_hash_known_value():
-    """T2b: canonical_hash() matches a pinned sha256 digest."""
+    """T2b: canonical_hash matches a pinned sha256 digest."""
     import hashlib
     import json
-
     obj = {
         "authority_basis": "OWNER",
         "outcome": "APPROVED",
@@ -130,11 +121,11 @@ def test_canonical_hash_known_value():
         obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False
     ).encode("utf-8")
     expected_hash = hashlib.sha256(raw).hexdigest()
-    assert SAMPLE_RECORD.canonical_hash() == expected_hash
+    assert SAMPLE_RECORD.canonical_hash == expected_hash
 
 
 def test_no_version_dependent_dict_ordering():
-    """T2c: Two DecisionRecords with identical fields produce identical bytes (no implicit ordering)."""
+    """T2c: Two DecisionRecords with identical fields produce identical bytes."""
     r1 = DecisionRecord(
         transition_id="tx-999",
         outcome=TransitionOutcome.REFUSED,
@@ -149,14 +140,13 @@ def test_no_version_dependent_dict_ordering():
         risk_class=RiskClass.HIGH,
         reason="authority_insufficient",
     )
-    assert r1.canonical_bytes() == r2.canonical_bytes()
-    assert r1.canonical_hash() == r2.canonical_hash()
+    assert r1.canonical_bytes == r2.canonical_bytes
+    assert r1.canonical_hash == r2.canonical_hash
 
 
 # ---------------------------------------------------------------------------
 # Task 3 — Authority Mapping Isolation
 # ---------------------------------------------------------------------------
-
 
 def test_evaluate_fails_cleanly_when_evidence_missing():
     """T3a: evaluate() raises ValueError when provided_evidence is None."""
@@ -237,11 +227,9 @@ def test_authority_context_provided_evidence_defaults_none():
 # Task 4 — Boundary Integrity
 # ---------------------------------------------------------------------------
 
-
 def test_mgtp_import_does_not_modify_authority_gate():
     """T4a: AuthorityGate behaviour is unchanged after importing mgtp."""
     import mgtp  # noqa: F401
-
     gate = AuthorityGate(Evidence.OWNER)
     assert gate.check(Evidence.ADMIN) is Decision.ALLOW
     assert gate.check(Evidence.USER) is Decision.DENY
@@ -258,14 +246,9 @@ def test_mgtp_import_does_not_monkeypatch_evidence():
 def test_commit_gate_module_not_imported_by_mgtp():
     """T4c: Importing mgtp does not introduce commit_gate into sys.modules."""
     import importlib
-
-    # Remove any cached mgtp modules so we get a clean re-import
     mgtp_keys = [k for k in sys.modules if k == "mgtp" or k.startswith("mgtp.")]
     saved_mgtp = {k: sys.modules.pop(k) for k in mgtp_keys}
-
-    # Record commit_gate modules that may already be present from other tests
     pre_commit_gate = {k for k in sys.modules if k.startswith("commit_gate")}
-
     try:
         importlib.import_module("mgtp")
         post_commit_gate = {k for k in sys.modules if k.startswith("commit_gate")}
@@ -274,7 +257,6 @@ def test_commit_gate_module_not_imported_by_mgtp():
             f"mgtp import introduced commit_gate modules: {new_commit_gate}"
         )
     finally:
-        # Remove modules imported during this test, then restore the saved ones
         current_mgtp_keys = [k for k in sys.modules if k == "mgtp" or k.startswith("mgtp.")]
         for k in current_mgtp_keys:
             sys.modules.pop(k, None)
@@ -282,7 +264,7 @@ def test_commit_gate_module_not_imported_by_mgtp():
 
 
 def test_authority_gate_check_is_pure():
-    """T4d: authority_gate.check() remains pure (same output for same input)."""
+    """T4d: authority_gate.check() remains pure."""
     gate = AuthorityGate(Evidence.USER)
     results = [gate.check(Evidence.NONE) for _ in range(50)]
     assert all(r is Decision.DENY for r in results)
