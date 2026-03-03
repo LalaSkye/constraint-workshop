@@ -117,3 +117,33 @@ Deterministic, hash-bound commit authority gate — stdlib-only, no network, no 
 ## Licence
 
 Apache 2.0
+
+
+## LV/Tech Runtime Governance Geometry
+
+This repo uses a **spec-first** workflow for runtime governance.
+
+The canonical runtime governance geometry is defined in:
+
+- [`docs/LVTECH_RUNTIME_GEOMETRY_v0.1.md`](docs/LVTECH_RUNTIME_GEOMETRY_v0.1.md) — Canonical spec
+- [`docs/LVTECH_RUNTIME_GEOMETRY_DIAGRAM_v0.1.md`](docs/LVTECH_RUNTIME_GEOMETRY_DIAGRAM_v0.1.md) — Mermaid diagram
+- [`docs/LVTECH_RUNTIME_GEOMETRY_TEST_MATRIX_v0.1.md`](docs/LVTECH_RUNTIME_GEOMETRY_TEST_MATRIX_v0.1.md) — NON_EXEC test matrix
+- [`docs/HANDOFF_PERPLEXITY.md`](docs/HANDOFF_PERPLEXITY.md) — AI assistant builder instructions
+
+It describes:
+
+- State-space regions (A–E)
+- Deterministic gates (G1–G4)
+- A one-way commit boundary
+- Fail-closed failure posture
+- Evidence and audit requirements
+
+### How to work with AI assistants
+
+When you use Perplexity or another assistant on this repo:
+
+1. Point it at the geometry spec.
+2. Ask it to **propose** docs, diagrams, and NON_EXEC test matrices first.
+3. Only after HUMAN review, ask for executable code that **implements** the geometry without changing its invariants.
+
+See [`docs/HANDOFF_PERPLEXITY.md`](docs/HANDOFF_PERPLEXITY.md) for full builder instructions.
