@@ -34,8 +34,7 @@ def find_forbidden(text, forbidden_paths, forbidden_tokens, case_insensitive=Tru
     """
     findings = []
     lines = text.splitlines()
-    check_text = text.lower() if case_insensitive else text
-
+    
     for line_num, line in enumerate(lines, start=1):
         check_line = line.lower() if case_insensitive else line
         for fp in forbidden_paths:
