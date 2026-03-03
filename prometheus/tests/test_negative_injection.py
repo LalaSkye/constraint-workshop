@@ -12,8 +12,7 @@ import shutil
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from prometheus.redlines import scan_prometheus_redlines
-from prometheus.fit_report import classify, build_fit_report
-
+from prometheus.fit_report import classify
 
 _RULES = {
     "forbidden_paths": ["/trinity/gate/", "/alviantech/pipeline/"],
