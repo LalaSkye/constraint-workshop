@@ -1,4 +1,8 @@
 ![CI](https://github.com/LalaSkye/constraint-workshop/actions/workflows/ci.yml/badge.svg)
+[![CodeQL](https://github.com/LalaSkye/constraint-workshop/actions/workflows/codeql.yml/badge.svg)](https://github.com/LalaSkye/constraint-workshop/actions/workflows/codeql.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![GitHub issues](https://img.shields.io/github/issues/LalaSkye/constraint-workshop)](https://github.com/LalaSkye/constraint-workshop/issues)
+[![GitHub release](https://img.shields.io/github/v/release/LalaSkye/constraint-workshop)](https://github.com/LalaSkye/constraint-workshop/releases)
 
 # constraint-workshop
 
