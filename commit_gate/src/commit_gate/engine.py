@@ -14,6 +14,18 @@ from .canonicalise import canonical_hash, canonicalise
 
 
 ARTEFACT_VERSION = "0.1"
+SCHEMA_VERSION = "1.0"
+
+_VERDICT_TO_DECISION = {
+    "ALLOW": "PASS",
+    "REFUSE": "FAIL",
+    "ESCALATE": "HOLD",
+}
+
+
+def _map_decision(verdict):
+    """Map internal verdict to schema decision (PASS|HOLD|FAIL)."""
+    return _VERDICT_TO_DECISION.get(verdict, "FAIL")
 
 
 def _scope_matches(rule_scope, request_scope):
@@ -111,11 +123,17 @@ def evaluate(commit_request, ruleset):
     }
 
 
-def write_decision_report(verdict_dict, request_hash, output_dir):
+def write_decision_report(verdict_dict, commit_hash, output_dir):
     """Write decision artefact to reports dir."""
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    path = output_dir / f"commit_decision_{request_hash}.json"
-    canonical_bytes = canonicalise(verdict_dict)
+    path = output_dir / f"commit_decision_{commit_hash}.json"
+    envelope = {
+        "schema_version": SCHEMA_VERSION,
+        "commit_hash": commit_hash,
+        "decision": _map_decision(verdict_dict["verdict"]),
+        "reason_codes": verdict_dict["reasons"],
+    }
+    canonical_bytes = canonicalise(envelope)
     path.write_bytes(canonical_bytes)
     return path
