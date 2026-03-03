@@ -1,0 +1,8 @@
+# Default owner for everything in this repo
+* @LalaSkye
+
+# Geometry spec artefacts require explicit review
+/docs/LVTECH_* @LalaSkye
+
+# CI and infrastructure
+/.github/ @LalaSkye
