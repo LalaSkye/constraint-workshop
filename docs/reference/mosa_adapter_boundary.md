@@ -82,3 +82,4 @@ The adapter accepts delegation/revocation signals from the authority chain. Thes
 - The adapter is platform-agnostic and hull-vendor independent
 - All integration points are described at the input/output level
 - No specific GFI ICD version is assumed — adapter pattern is generic
+- This adapter defines interface structures only and does not implement policy evaluation or decision logic
