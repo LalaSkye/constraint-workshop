@@ -8,6 +8,8 @@
 
 Small, deterministic control primitives for software systems. Testable, auditable bricks.
 
+**This is a primitive workbench, not a framework.** It does not contain orchestration logic, agent wrappers, or alignment policy. It contains standalone bricks with fail-closed control, explicit authority gates, and deterministic commit boundaries.
+
 ## Why this exists
 
 Most software control logic is implicit, buried in application code, and impossible to audit independently. These primitives make control decisions explicit, testable, and portable. Each one is a standalone brick: no frameworks, no runtime dependencies, no hidden state. If your system needs a verifiable stop condition, a gated authority check, or a deterministic posture classifier, you can drop one in and test it in isolation.
@@ -16,7 +18,7 @@ Most software control logic is implicit, buried in application code, and impossi
 
 ### `stop_machine`
 
-A three-state deterministic machine.
+A three-state deterministic machine with fail-closed control.
 
 | State | Meaning |
 |-------|---------------------|
@@ -44,7 +46,7 @@ A three-state deterministic machine.
 
 ### `authority_gate`
 
-An evidence-ordered access gate. Monotonic, deterministic, pure.
+An evidence-ordered access gate enforcing pre-execution admissibility. Monotonic, deterministic, pure.
 
 | Level | Value |
 |-------|-------|
@@ -58,6 +60,7 @@ An evidence-ordered access gate. Monotonic, deterministic, pure.
   - check() is pure: same inputs produce same output.
   - Evidence ordering is total and monotonic.
   - No side effects. No logging. No state mutation.
+  - Fail-closed: insufficient evidence produces DENY.
 
 **Interface:**
   ```python
@@ -106,7 +109,7 @@ pytest test_stop_machine.py test_authority_gate.py test_invariant_litmus.py -v
 
 ## Commit Gate Engine (v0.1.0)
 
-Deterministic, hash-bound commit authority gate — stdlib-only, no network, no new governance primitives.
+Deterministic, hash-bound commit authority gate — stdlib-only, no network, no new governance primitives. Enforces the commit boundary: no execution without explicit, evidence-backed authority.
 
 - **Location:** [`/commit_gate/`](commit_gate/)
 - **Proves:** determinism (byte-identical output across runs) + drift-fail (reachability expansion without contract revision is rejected)
@@ -139,7 +142,7 @@ It describes:
 - State-space regions (A–E)
 - Deterministic gates (G1–G4)
 - A one-way commit boundary
-- Fail-closed failure posture
+- Fail-closed control posture
 - Evidence and audit requirements
 
 ### How to work with AI assistants
