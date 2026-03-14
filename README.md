@@ -208,6 +208,16 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Code of conduct in [CODE_OF_CONDUCT.md](
 
 ---
 
+## Work With Me
+
+Need governance tooling for your AI systems? I consult on runtime constraint design, AI governance architecture, and EU AI Act compliance.
+
+→ **ricky.mcjones@gmail.com**
+→ [LinkedIn](https://linkedin.com/in/ricky-jones-1b745474)
+→ [GitHub Sponsors](https://github.com/sponsors/LalaSkye)
+
+---
+
 ## License
 
 Apache 2.0. See `LICENSE`.
