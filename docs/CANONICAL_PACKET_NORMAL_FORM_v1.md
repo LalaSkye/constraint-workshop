@@ -5,7 +5,7 @@ Formal specification for canonical packet representation.
 
 **Depends on:** ADMISSIBILITY_ALGEBRA_v1, PROOF_CARRYING_PACKET_SPEC_v1
 **FC Scope:** constraint-workshop
-**Date:** 2025-03-26
+**Date:** 2026-03-26
 
 ---
 
@@ -253,7 +253,7 @@ An implementation conforms to this spec if and only if:
 
 - **ADMISSIBILITY_ALGEBRA_v1:** Canonical packets are the input to the admissibility gate.
 - **PROOF_CARRYING_PACKET_SPEC_v1:** Proof bundles within packets follow their own canonicalisation (claims sorted by type).
-- **GOLDEN_CONFORMANCE_CORPUS_v1:** (forthcoming) Will include canonical form test vectors and equivalence test pairs.
+- **GOLDEN_CONFORMANCE_CORPUS_v1:** Includes canonical form test vectors and equivalence test pairs.
 
 ---
 
