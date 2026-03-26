@@ -5,7 +5,7 @@ Foundation layer for proof-carrying execution governance.
 
 **Depends on:** ADMISSIBILITY_ALGEBRA_v1
 **FC Scope:** constraint-workshop
-**Date:** 2025-03-26
+**Date:** 2026-03-26
 
 ---
 
@@ -257,8 +257,8 @@ An implementation conforms to this spec if and only if:
 ## 10. Relationship to Other Specs
 
 - **ADMISSIBILITY_ALGEBRA_v1:** This spec feeds into the admissibility gate. Proof evaluation is a prerequisite, not a replacement.
-- **CANONICAL_PACKET_NORMAL_FORM_v1:** (forthcoming) Will define the exact canonical representation of packets before proof evaluation.
-- **GOLDEN_CONFORMANCE_CORPUS_v1:** (forthcoming) Will include proof-carrying packet test vectors with expected verdicts.
+- **CANONICAL_PACKET_NORMAL_FORM_v1:** Defines the exact canonical representation of packets before proof evaluation.evaluation.
+- **GOLDEN_CONFORMANCE_CORPUS_v1:** Includes proof-carrying packet test vectors with expected verdicts.
 
 ---
 
