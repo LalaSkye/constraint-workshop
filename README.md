@@ -7,7 +7,7 @@
 
 # constraint-workshop
 
-Three standalone, deterministic control primitives — stop machine, authority gate, invariant litmus — that compose into larger governance systems.
+Three standalone, deterministic control primitives — stop machine, execution gate, invariant litmus — that compose into larger governance systems.
 
 ---
 
@@ -35,7 +35,7 @@ Most software control logic is implicit, buried in application code, and impossi
   │                                                          │
   │  ┌──────────────────────────────────────────────────┐   │
   │  │              commit_gate/ (v0.1.0)                │   │
-  │  │  hash-bound commit authority gate — stdlib only   │   │
+  │  │  hash-bound commit execution gate — stdlib only   │   │
   │  └──────────────────────────────────────────────────┘   │
   │                                                          │
   │  /prometheus  — observability island (no exec imports)   │
@@ -135,7 +135,7 @@ r2.posture  # Posture.COST_CURVE
 
 ## Commit Gate Engine (v0.1.0)
 
-Deterministic, hash-bound commit authority gate — stdlib-only, no network, no new governance primitives. Enforces the commit boundary: no execution without explicit, evidence-backed authority.
+Deterministic, hash-bound commit execution gate — stdlib-only, no network, no new governance primitives. Enforces the commit boundary: no execution without explicit, evidence-backed authority.
 
 - **Location:** [`/commit_gate/`](commit_gate/)
 - **Proves:** determinism (byte-identical output across runs) + drift-fail (reachability expansion without contract revision is rejected)
@@ -200,7 +200,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Code of conduct in [CODE_OF_CONDUCT.md](
 | [dual-boundary-admissibility-lab](https://github.com/LalaSkye/dual-boundary-admissibility-lab) | Full corridor | Dual-boundary model with pressure monitoring and C-sector rotation |
 | [execution-boundary-lab](https://github.com/LalaSkye/execution-boundary-lab) | Execution boundary | Demonstrates cascading failures without upstream governance |
 | [stop-machine](https://github.com/LalaSkye/stop-machine) | Control primitive | Deterministic three-state stop controller |
-| [constraint-workshop](https://github.com/LalaSkye/constraint-workshop) | Control primitives | Authority gate, invariant litmus, stop machine |
+| [constraint-workshop](https://github.com/LalaSkye/constraint-workshop) | Control primitives | Execution gate, invariant litmus, stop machine |
 | [csgr-lab](https://github.com/LalaSkye/csgr-lab) | Measurement | Contracted stability and drift measurement |
 | [invariant-lock](https://github.com/LalaSkye/invariant-lock) | Drift prevention | Refuse execution unless version increments |
 | [policy-lint](https://github.com/LalaSkye/policy-lint) | Policy validation | Deterministic linter for governance statements |
@@ -233,3 +233,8 @@ No rights to use, reproduce, or implement are granted without explicit permissio
 **Repository owner:** [LalaSkye](https://github.com/LalaSkye)
 **Status:** Active research / architecture work
 **Part of:** [Execution Boundary Series](https://github.com/LalaSkye) — TrinityOS / AlvianTech
+
+---
+
+This repository demonstrates deterministic control using standard engineering techniques. No proprietary frameworks or external implementations are used.
+

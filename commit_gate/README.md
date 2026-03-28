@@ -1,6 +1,6 @@
 # Commit Gate Engine v0.1
 
-Deterministic commit authority gate. Converts commit authority from prose into a mechanically verifiable, hash-bound artefact.
+Deterministic commit execution gate. Converts commit authority from prose into a mechanically verifiable, hash-bound artefact.
 
 ## Contract
 
