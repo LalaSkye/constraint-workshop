@@ -1,0 +1,39 @@
+{
+  "_meta": {
+    "vector_id": "crypto_posture_04",
+    "description": "Invalid signature or wrong algorithm — algorithm mismatch triggers REFUSE",
+    "category": "invalid_signature_refuse",
+    "expected_verdict": "REFUSE",
+    "expected_reason_code": "crypto_posture_invalid_signature"
+  },
+  "input": {
+    "actor_id": "operator-delta",
+    "action_class": "sensitive_command",
+    "context": {
+      "mission_phase": "return",
+      "comms_mode": "LOS"
+    },
+    "authority_scope": {
+      "level": "tactical",
+      "delegation_chain": ["ground_authority", "vessel_commander", "watch_officer"]
+    },
+    "invariant_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "crypto_posture": {
+      "alg_suite": "ML-DSA-65",
+      "key_origin": "onboard_kms",
+      "rotation_epoch": "2026-03-01T00:00:00Z",
+      "policy_hash": "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5",
+      "toolchain_provenance": "genesis-aix-build-2026.03.r1"
+    },
+    "signature_verification": {
+      "declared_alg": "ML-DSA-65",
+      "actual_alg_used": "Ed25519",
+      "verification_result": "FAIL"
+    }
+  },
+  "expected_output": {
+    "verdict": "REFUSE",
+    "reasons": ["crypto_posture_invalid_signature"],
+    "schema_version": "0.2.0"
+  }
+}
