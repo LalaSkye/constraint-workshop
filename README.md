@@ -7,6 +7,16 @@
 
 # constraint-workshop
 
+## Try in 30 seconds
+
+```bash
+git clone https://github.com/LalaSkye/constraint-workshop.git
+cd constraint-workshop
+python -m pytest tests/ -q --tb=no
+```
+
+**Expected:** All tests passing.
+
 Three standalone, deterministic control primitives — stop machine, execution gate, invariant litmus — that compose into larger governance systems.
 
 ---
