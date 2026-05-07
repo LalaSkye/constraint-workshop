@@ -15,12 +15,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci:
+  tests:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.11", "3.12" ]
+        python-version: [ "3.10", "3.11", "3.12" ]
 
     steps:
       - name: Checkout
@@ -46,3 +46,54 @@ jobs:
       - name: Tests (pytest)
         run: |
           pytest -q
+
+  protected-file-guard:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fail if protected paths are modified
+        run: |
+          PROTECTED_PATHS=(
+            "authority_gate.py"
+            "stop_machine.py"
+            "commit_gate/"
+            ".github/workflows/"
+          )
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}..HEAD)
+          VIOLATIONS=""
+          for path in "${PROTECTED_PATHS[@]}"; do
+            if echo "$CHANGED" | grep -q "^${path}"; then
+              VIOLATIONS="${VIOLATIONS}\n  - ${path}"
+            fi
+          done
+          if [ -n "$VIOLATIONS" ]; then
+            echo "::error::Protected paths modified — triple-lock review required:${VIOLATIONS}"
+            exit 1
+          fi
+          echo "No protected paths modified."
+
+  build-artefact:
+    runs-on: ubuntu-latest
+    needs: tests
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build source artefact
+        run: |
+          zip -r constraint-workshop-${{ github.sha }}.zip \
+            authority_gate.py stop_machine.py mgtp/ commit_gate/ registry/ \
+            --exclude "*/__pycache__/*" --exclude "*/.git/*"
+
+      - name: Upload artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: constraint-workshop-${{ github.sha }}
+          path: constraint-workshop-${{ github.sha }}.zip
+          retention-days: 90
