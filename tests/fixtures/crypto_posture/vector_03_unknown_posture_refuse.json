@@ -1,0 +1,34 @@
+{
+  "_meta": {
+    "vector_id": "crypto_posture_03",
+    "description": "Misconfigured/unknown algorithm suite — fail-closed to REFUSE",
+    "category": "unknown_posture_refuse",
+    "expected_verdict": "REFUSE",
+    "expected_reason_code": "crypto_posture_unknown_suite"
+  },
+  "input": {
+    "actor_id": "operator-charlie",
+    "action_class": "sensitive_command",
+    "context": {
+      "mission_phase": "transit",
+      "comms_mode": "EMCON"
+    },
+    "authority_scope": {
+      "level": "operational",
+      "delegation_chain": ["ground_authority", "vessel_commander"]
+    },
+    "invariant_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "crypto_posture": {
+      "alg_suite": "UNKNOWN-ALG-SUITE-999",
+      "key_origin": "external_ca",
+      "rotation_epoch": "2026-01-01T00:00:00Z",
+      "policy_hash": "c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+      "toolchain_provenance": "vendor-x-build-unknown"
+    }
+  },
+  "expected_output": {
+    "verdict": "REFUSE",
+    "reasons": ["crypto_posture_unknown_suite"],
+    "schema_version": "0.2.0"
+  }
+}

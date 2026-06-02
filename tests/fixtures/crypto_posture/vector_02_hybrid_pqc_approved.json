@@ -1,0 +1,34 @@
+{
+  "_meta": {
+    "vector_id": "crypto_posture_02",
+    "description": "Hybrid classic+PQC posture approved by policy",
+    "category": "hybrid_pqc_approved",
+    "expected_verdict": "ALLOW",
+    "expected_reason_code": "crypto_posture_hybrid_approved"
+  },
+  "input": {
+    "actor_id": "operator-bravo",
+    "action_class": "sensitive_command",
+    "context": {
+      "mission_phase": "station_keeping",
+      "comms_mode": "SATCOM"
+    },
+    "authority_scope": {
+      "level": "operational",
+      "delegation_chain": ["ground_authority"]
+    },
+    "invariant_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "crypto_posture": {
+      "alg_suite": "ECDH-P384+ML-KEM-768",
+      "key_origin": "HSM",
+      "rotation_epoch": "2026-02-15T00:00:00Z",
+      "policy_hash": "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3",
+      "toolchain_provenance": "genesis-aix-build-2026.02.r3"
+    }
+  },
+  "expected_output": {
+    "verdict": "ALLOW",
+    "reasons": ["crypto_posture_hybrid_approved"],
+    "schema_version": "0.2.0"
+  }
+}

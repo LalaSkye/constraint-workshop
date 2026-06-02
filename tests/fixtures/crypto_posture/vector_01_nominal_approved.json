@@ -1,0 +1,34 @@
+{
+  "_meta": {
+    "vector_id": "crypto_posture_01",
+    "description": "Nominal approved PQC posture — approved algorithm suite, valid key origin, matching policy",
+    "category": "nominal_approved",
+    "expected_verdict": "ALLOW",
+    "expected_reason_code": "crypto_posture_approved"
+  },
+  "input": {
+    "actor_id": "operator-alpha",
+    "action_class": "sensitive_command",
+    "context": {
+      "mission_phase": "transit",
+      "comms_mode": "DDIL"
+    },
+    "authority_scope": {
+      "level": "operational",
+      "delegation_chain": ["ground_authority", "vessel_commander"]
+    },
+    "invariant_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "crypto_posture": {
+      "alg_suite": "ML-KEM-768",
+      "key_origin": "onboard_kms",
+      "rotation_epoch": "2026-03-01T00:00:00Z",
+      "policy_hash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+      "toolchain_provenance": "genesis-aix-build-2026.03.r1"
+    }
+  },
+  "expected_output": {
+    "verdict": "ALLOW",
+    "reasons": ["crypto_posture_approved"],
+    "schema_version": "0.2.0"
+  }
+}
